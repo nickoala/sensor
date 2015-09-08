@@ -126,9 +126,39 @@ t = bmp.temperature()  # read temperature
 print t                # namedtuple
 print t.C              # Celcius degree
 
-p, t = bmp.all()  # read both
+p, t = bmp.all()  # read both at once
 print p           # Pressure namedtuple
 print t           # Temperature namedtuple
+
+# Look up mean sea level pressure from local observatory.
+# 1009.1 hPa is only for example.
+a = p.altitude(1009.1)
+
+print a     # Altitude ...
+print a.m   # in metre
+print a.ft  # in feet
+```
+
+## HTU21D
+
+- Humidity + Temperature, I2C
+- Use `i2cdetect -y 1` to check address. It is probably `0x40`.
+
+```python
+from sensor import HTU21D
+
+# I2C bus: 1, Address: 0x40
+htu = HTU21D.HTU21D(1, 0x40)
+
+h = htu.humidity()  # read humidity
+print h             # namedtuple
+print h.RH          # relative humidity
+
+t = htu.temperature()  # read temperature
+print t                # namedtuple
+print t.F              # Fahrenheit
+
+h, t = htu.all()  # read both at once
 ```
 
 ## More coming ...
