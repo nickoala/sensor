@@ -185,4 +185,19 @@ print uv         # namedtuple
 print uv.mW_cm2  # mW/cm2
 ```
 
-## More coming ...
+## LCD1602
+
+- Not a sensor, obviously. Useful for displaying sensor data.
+- Use `i2cdetect -y 1` to check address. It is probably `0x27`.
+
+```python
+from sensor.LCD1602 import LCD1602
+
+# I2C bus=1, Address=0x27
+lcd = LCD1602(1, 0x27)
+
+lcd.display('Nick Lee', 1)   # show my name on line 1
+lcd.display('Hong Kong', 2)  # show my city on line 2
+
+lcd.clear()
+```
