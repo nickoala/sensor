@@ -60,4 +60,17 @@ dtparam=spi=on
 ```
 **Reboot.**
 
+## Know your sensor's address
+
+Unlike many libraries out there, this library knows **no default bus number** and **no default device address**. I want learners to be explicitly aware of those numbers, even if they are fixed.
+
+*Numbers* that are useful to know:
+- **I2C** bus is numbered **1**
+- **SPI** bus is numbered **0**
+
+To find out individual sensor's address:
+- For 1-wire sensors, go to `/sys/bus/w1/devices/`, and look for a long sequence of numbers
+- For I2C sensors, use `i2cdetect -y 1`
+- For SPI sensors, you should know which CS pin you used
+
 ## More coming ...
