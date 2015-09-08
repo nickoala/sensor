@@ -1,6 +1,6 @@
 # Raspberry Pi Sensors
 
-This is a **Python** package that enables **Raspberry Pi** to read various sensors (and interact with some non-sensors). It has only been tested on **Python 2.7** running on **Raspbian** on Raspberry Pi **2** Model **B**.
+This is a **Python** package that enables **Raspberry Pi** to read various sensors (and interact with some non-sensors). It has been tested on **Python 2.7** running on **Raspbian** on Raspberry Pi **2** Model **B**.
 
 Supported devices include:
 - **DS18B20** temperature sensor
@@ -10,7 +10,7 @@ Supported devices include:
 - **MCP3004** A/D Converter
 - **LCD1602** display
 
-The chief motivation for this package is educational. I am teaching a Raspberry Pi course, and find it very troublesome for students having to download a separate library every time they use another sensor. With this package, they download once and they are set (for my course, anyway). I hope you find the same level of convenience, if, for any reason, you decide to try out this package.
+The chief motivation for this package is educational. I am teaching a Raspberry Pi course, and find it very troublesome for students having to download a separate library every time they use another sensor. With this package, download once and they are set (for my course, anyway). I hope you find it useful, too.
 
 ## Installation
 
@@ -115,7 +115,7 @@ print t.K  # Kelvin
 ```python
 from sensor import BMP180
 
-# I2C bus: 1, Address: 0x77
+# I2C bus=1, Address=0x77
 bmp = BMP180.BMP180(1, 0x77)
 
 p = bmp.pressure()  # read pressure
@@ -147,7 +147,7 @@ print a.ft  # in feet
 ```python
 from sensor import HTU21D
 
-# I2C bus: 1, Address: 0x40
+# I2C bus=1, Address=0x40
 htu = HTU21D.HTU21D(1, 0x40)
 
 h = htu.humidity()  # read humidity
@@ -159,6 +159,30 @@ print t                # namedtuple
 print t.F              # Fahrenheit
 
 h, t = htu.all()  # read both at once
+```
+
+## ML8511
+
+- UV intensity, Analog output
+- Cannot interface with Pi directly. Must do so via an A/D converter, e.g. **MCP3004**.
+- Output is expressed in **mW/cm<sup>2</sup>** (milli-Watt per cm<sup>2</sup>), and cannot be translated into a UV index simply.
+
+```python
+# another style of import
+from sensor.ML8511 import ML8511
+from sensor.MCP3004 import MCP3004
+
+# A/D converter
+# SPI bus=0, CS=0, V_ref=3.3V
+mcp = MCP3004(0, 0, 3.3)
+
+# analog output -> channel 0 on MCP3004
+ml = ML8511(mcp, 0)
+
+uv = ml.uv()  # read UV intensity
+
+print uv         # namedtuple
+print uv.mW_cm2  # mW/cm2
 ```
 
 ## More coming ...
