@@ -73,4 +73,38 @@ To find out individual sensor's address:
 - For I2C sensors, use `i2cdetect -y 1`
 - For SPI sensors, you should know which CS pin you used
 
+## My sensors don't give simple numbers
+
+Unlike many libraries out there, this library does not return a simple Celcius degree when reading temperatures, does not return a simple hPa value when reading pressure, does not return a simple RH% when reading humidity, etc. Instead, I return a **namedtuple** representing the quantity, which offers two benefits:
+
+- No more conversion needed. Suppose you get a *Temperature* called `t`, you may access the Celcius degree by `t.C` as easily as you do Fahrenheit by `t.F`.
+- Namedtuples may have methods. For example, a *Pressure* has a method called `altitude()`, which tells you how high you are above mean sea level. It is convenient and intuitive.
+
+Keep reading to see how it really works ...
+
+## DS18B20
+
+- Temperature, 1-wire
+- To find out the sensor's address:
+
+    ```
+    $ cd /sys/bus/w1/devices/
+    $ ls
+    28-XXXXXXXXXXXX  w1_bus_master1
+    ```
+
+Read the sensor as follows:
+
+```python
+from sensor import DS18B20
+
+ds = DS18B20.DS18B20('28-XXXXXXXXXXXX')
+t = ds.temperature()  # read temperature
+
+print t    # this is a namedtuple
+print t.C  # Celcius
+print t.F  # Fahrenheit
+print t.K  # Kelvin
+```
+
 ## More coming ...
