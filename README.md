@@ -107,4 +107,28 @@ print t.F  # Fahrenheit
 print t.K  # Kelvin
 ```
 
+## BMP180
+
+- Pressure + Temperature, I2C
+- Use `i2cdetect -y 1` to check address. It is probably `0x77`.
+
+```python
+from sensor import BMP180
+
+# I2C bus: 1, Address: 0x77
+bmp = BMP180.BMP180(1, 0x77)
+
+p = bmp.pressure()  # read pressure
+print p             # namedtuple
+print p.hPa         # hPa value
+
+t = bmp.temperature()  # read temperature
+print t                # namedtuple
+print t.C              # Celcius degree
+
+p, t = bmp.all()  # read both
+print p           # Pressure namedtuple
+print t           # Temperature namedtuple
+```
+
 ## More coming ...
