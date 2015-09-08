@@ -1,3 +1,4 @@
+# Copyright 2015 Nick Lee
 # Copyright 2014 IIJ Innovation Institute Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,6 +47,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import time
+
+__all__ = ['util', 'DS18B20', 'BMP180', 'HTU21D', 'MCP3004', 'ML8511', 'LCD1602',]
 
 class SensorBase(object):
     def __init__(self, update_callback):

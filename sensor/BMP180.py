@@ -1,3 +1,4 @@
+# Copyright 2015 Nick Lee
 # Copyright 2014 IIJ Innovation Institute Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,12 +45,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import sensor
+# Include the sensor directory, so this file may be run as a test script.
+if __name__ == "__main__" and __package__ is None:
+    import os, sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import struct
 import time
-
-# Default I2C address
-_DEFAULT_ADDRESS = 0x77
+import smbus
+import sensor
+from sensor.util import Pressure, Temperature
 
 # Registers
 _REG_AC1                 = 0xAA
@@ -83,16 +88,13 @@ _WAIT_TEMPERATURE = 0.0045
 _WAIT_PRESSURE    = [0.0045, 0.0075, 0.0135, 0.0255]
 
 class BMP180(sensor.SensorBase):
-    def __init__(self, bus = None, addr = _DEFAULT_ADDRESS,
-                 os_mode = OS_MODE_SINGLE):
-        assert(bus is not None)
-        assert(addr > 0b000111
-               and addr < 0b1111000)
+    def __init__(self, bus, addr, os_mode = OS_MODE_SINGLE):
+        assert(addr > 0b000111 and addr < 0b1111000)
 
         super(BMP180, self).__init__(
             update_callback = self._update_sensor_data)
 
-        self._bus = bus
+        self._bus = smbus.SMBus(bus)
         self._addr = addr
 
         self._ac0 = None
@@ -113,31 +115,28 @@ class BMP180(sensor.SensorBase):
 
         self._read_calibration_data()
 
-    @property
     def pressure(self):
         '''Returns a pressure value.  Returns None if no valid value is set
         yet.
         '''
         self._update()
-        return (self._pressure)
+        return Pressure(hPa=self._pressure)
 
-    @property
     def temperature(self):
         '''Returns a temperature value.  Returns None if no valid value is
         set yet.
         '''
         self._update()
-        return (self._temperature)
+        return Temperature(C=self._temperature)
 
-    @property
-    def pressure_and_temperature(self):
+    def all(self):
         '''Returns pressure and temperature values as a tuple.  This call can
         save 1 transaction than getting a pressure and temperature
         values separetely.  Returns (None, None) if no valid values
         are set yet.
         '''
         self._update()
-        return (self._pressure, self._temperature)
+        return (Pressure(hPa=self._pressure), Temperature(C=self._temperature))
 
     @property
     def os_mode(self):
@@ -206,11 +205,21 @@ class BMP180(sensor.SensorBase):
         x2 = (-7357 * p) >> 16
         self._pressure = (p + ((x1 + x2 + 3791) >> 4)) / 100.0
 
-if __name__ == '__main__':
-    import smbus
 
-    bus = smbus.SMBus(1)
-    sensor = BMP180(bus)
+""" Run this file as a test script
+$ i2cdetect -y 1  # find the sensor's I2C address
+$ python BMP180.py <bus> <hex address>
+
+On Raspi, it is probably:
+$ python BMP180.py 1 0x77
+"""
+if __name__ == '__main__':
+    import sys
+
+    bus = int(sys.argv[1])
+    addr = int(sys.argv[2], 16)
+
+    sensor = BMP180(bus, addr)
     for cache in [0, 5]:
         print '**********'
         print 'Cache lifetime is %d' % cache
@@ -219,4 +228,4 @@ if __name__ == '__main__':
             sensor.os_mode = mode
             print 'Oversampling mode is %d' % mode
             for c in range(10):
-                print sensor.pressure_and_temperature
+                print sensor.all()
