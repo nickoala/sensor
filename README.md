@@ -26,7 +26,7 @@ Then:
 
 But the `sensor` package would not work by itself. Communicating with sensors often requires some sort of serial protocol, such as **1-wire**, **I2C**, or **SPI**. You have to know which sensor speaks which, and set up Linux and Python accordingly.
 
-## Setup 1-Wire
+## Enable 1-Wire
 
 `sudo nano /boot/config.txt`, add this line:
 ```
@@ -34,7 +34,7 @@ dtoverlay=w1-gpio
 ```
 **Reboot.**
 
-## Setup I2C
+## Enable I2C
 
 `sudo apt-get install i2c-tools python-smbus`
 
@@ -49,7 +49,7 @@ dtparam=i2c1=on
 ```
 **Reboot.**
 
-## Setup SPI
+## Enable SPI
 
 `sudo apt-get install python-dev`  
 `sudo pip install spidev`
