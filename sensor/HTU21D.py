@@ -183,6 +183,7 @@ class HTU21D(sensor.SensorBase):
                   | self._otp_reload)
         self._iow.write(_CMD_WRITE_CONFIG + struct.pack('B', config))
 
+    @sensor.i2c_lock
     def _update_sensor_data(self):
         if self._use_temperature is True:
             self._iow.write(_CMD_TEMPERATURE)

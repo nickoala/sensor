@@ -40,6 +40,7 @@ class ML8511(sensor.SensorBase):
         self._update()
         return UV(mW_cm2=self._mW_cm2)
 
+    @sensor.spi_lock
     def _update_sensor_data(self):
         voltage = self._adc.voltage(self._channel)
         self._mW_cm2 = (voltage - 1) * 25 / 3.0

@@ -40,6 +40,7 @@ class DS18B20(sensor.SensorBase):
         self._update()
         return Temperature(C=self._temperature) if self._temperature is not None else None
 
+    @sensor.w1_lock
     def _update_sensor_data(self):
         # Try at most 3 times
         for i in range(0,3):

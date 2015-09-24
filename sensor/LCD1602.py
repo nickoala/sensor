@@ -3,6 +3,7 @@ Downloaded and adapted from:
   http://www.imediabank.com/download/sankilcd.tar.gz
 """
 
+import sensor
 import smbus
 from time import *
 
@@ -115,6 +116,7 @@ class LCD1602(object):
         self._write_four_bits(mode | ((cmd << 4) & 0xF0))
 
     # put string function
+    @sensor.i2c_lock
     def display(self, string, line):
         string = string.ljust(16)  # pad spaces to the end
 
@@ -130,6 +132,7 @@ class LCD1602(object):
             self._write(ord(char), Rs)
 
     # clear lcd and set to home
+    @sensor.i2c_lock
     def clear(self):
         self._write(LCD_CLEARDISPLAY)
         self._write(LCD_RETURNHOME)

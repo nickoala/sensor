@@ -164,6 +164,7 @@ class BMP180(sensor.SensorBase):
          self._mb, self._mc, self._md) = struct.unpack(
              '>hhhHHHhhhhh', ''.join([chr(x) for x in calib]))
 
+    @sensor.i2c_lock
     def _update_sensor_data(self):
         cmd = _CMD_START_CONVERSION | _CMD_TEMPERATURE
         self._bus.write_byte_data(self._addr,
