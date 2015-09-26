@@ -8,6 +8,8 @@ import telepot
 from sensor import *
 
 """
+$ python2.7 indoor.py <token> <user_id>
+
 An indoor climate monitor with 3 sensors and an LCD display.
 
 It also comes with a Telegram bot that can report data periodically.
