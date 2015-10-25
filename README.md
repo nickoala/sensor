@@ -64,7 +64,7 @@ dtparam=spi=on
 
 Unlike many libraries out there, this library knows **no default bus number** and **no default device address**. I want learners to be explicitly aware of those numbers, even if they are fixed.
 
-*Numbers* that are useful to know:
+For example:
 - **I2C** bus is numbered **1**
 - **SPI** bus is numbered **0**
 
