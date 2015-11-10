@@ -26,51 +26,56 @@ lcd = LCD1602.LCD1602(1, 0x27)
 def read_all():
     return ds.temperature(), htu.humidity(), bmp.pressure()
 
+# Read sensors and display on LCD
 def lcd_display():
     t, h, p = read_all()
     lcd.display('%.1f C    %.1f%%' % (t.C, h.RH), 1)
     lcd.display('   %.1f hPa' % p.hPa, 2)
 
-def read_send(user_id):
+# Read sensors and send to user
+def read_send(chat_id):
     t, h, p = read_all()
     msg = '{:.1f}°C  {:.1f}%  {:,.1f}hPa'.format(t.C, h.RH, p.hPa)
-    bot.sendMessage(user_id, msg)
+    bot.sendMessage(chat_id, msg)
 
 def handle(msg):
     global last_report, report_interval
 
-    msg_type, from_id, chat_id = telepot.glance(msg)
+    msg_type, chat_type, chat_id = telepot.glance2(msg)
 
+    # ignore non-text message
     if msg_type != 'text':
         return
 
-    if from_id != USER_ID:
+    # only respond to one user
+    if chat_id != USER_ID:
         return
 
     command = msg['text'].strip().lower()
 
     if command == '/now':
-        read_send(from_id)
+        read_send(chat_id)
     elif command == '/1m':
-        read_send(from_id)
+        read_send(chat_id)
         last_report = time.time()
-        report_interval = 1 * 60
+        report_interval = 60    # report every 60 seconds
     elif command == '/1h':
-        read_send(from_id)
+        read_send(chat_id)
         last_report = time.time()
-        report_interval = 1 * 3600
+        report_interval = 3600  # report every 3600 seconds
     elif command == '/cancel':
         last_report = None
-        report_interval = None
-        bot.sendMessage(from_id, "OK")
+        report_interval = None  # clear periodic reporting
+        bot.sendMessage(chat_id, "OK")
     else:
-        bot.sendMessage(from_id, "I don't understand")
+        bot.sendMessage(chat_id, "I don't understand")
 
 
 def on_sigterm(signum, frame):
     sys.exit(0)
     # raise SystemExit so the `finally` clause gets executed
 
+# catch termination signal so LCD is cleared
 signal.signal(signal.SIGTERM, on_sigterm)
 
 
@@ -80,6 +85,7 @@ USER_ID = long(sys.argv[2])
 bot = telepot.Bot(TOKEN)
 bot.notifyOnMessage(handle)
 
+# variables for periodic reporting
 last_report = None
 report_interval = None
 
@@ -96,6 +102,6 @@ try:
             except:
                 traceback.print_exc()
 
-        time.sleep(0.1)
+        time.sleep(1)
 finally:
     lcd.clear()
