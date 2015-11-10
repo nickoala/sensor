@@ -5,7 +5,7 @@ import time
 import traceback
 import signal
 import telepot
-from sensor import *
+from sensor import DS18B20, HTU21D, BMP180, LCD1602
 
 """
 $ python2.7 indoor.py <token> <user_id>
