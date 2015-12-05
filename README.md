@@ -7,7 +7,7 @@ Supported devices include:
 - **BMP180** pressure and temperature sensor
 - **HTU21D** humidity and temperature sensor
 - **ML8511** UV sensor
-- **MCP3004** A/D Converter
+- **MCP3004** A/D Converter (**MCP3008** also compatible)
 - **LCD1602** display
 
 The chief motivation for this package is educational. I am teaching a Raspberry Pi course, and find it very troublesome for students having to download a separate library every time they use another sensor. With this package, download once and they are set (for my course, anyway). I hope you find it useful, too.
