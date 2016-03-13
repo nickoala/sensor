@@ -41,7 +41,7 @@ def read_send(chat_id):
 def handle(msg):
     global last_report, report_interval
 
-    msg_type, chat_type, chat_id = telepot.glance2(msg)
+    msg_type, chat_type, chat_id = telepot.glance(msg)
 
     # ignore non-text message
     if msg_type != 'text':
