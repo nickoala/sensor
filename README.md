@@ -26,7 +26,7 @@ For **Raspbian Jessie**, you may have to do the following to fix `pip` (because 
 
 Install this package:
 
-`sudo pip install sensor` to install this package
+`sudo pip install sensor`
 
 But the `sensor` package would not work by itself. Communicating with sensors often requires some sort of serial protocol, such as **1-wire**, **I2C**, or **SPI**. You have to know which sensor speaks which, and set up Linux and Python accordingly.
 
