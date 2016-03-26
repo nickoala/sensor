@@ -8,7 +8,7 @@ Supported devices include:
 - **HTU21D** humidity and temperature sensor
 - **ML8511** UV sensor
 - **MCP3004** A/D Converter (**MCP3008** also compatible)
-- **LCD1602** display
+- **LCD1602** and **LCD2004** display
 
 The chief motivation for this package is educational. I am teaching a Raspberry Pi course, and find it very troublesome for students having to download a separate library every time they use another sensor. With this package, download once and they are set (for my course, anyway). I hope you find it useful, too.
 
@@ -19,9 +19,13 @@ It is best to update Linux first.
 `sudo apt-get update`  
 `sudo apt-get upgrade`
 
-Then:
+For **Raspbian Jessie**, you may have to do the following to fix `pip` (because of its using an older version of `requests`):
 
-`sudo apt-get install python-pip` to install the Python package manager  
+`sudo apt-get remove python-pip`  
+`sudo easy_install -U pip`
+
+Install this package:
+
 `sudo pip install sensor` to install this package
 
 But the `sensor` package would not work by itself. Communicating with sensors often requires some sort of serial protocol, such as **1-wire**, **I2C**, or **SPI**. You have to know which sensor speaks which, and set up Linux and Python accordingly.
@@ -185,10 +189,11 @@ print uv         # namedtuple
 print uv.mW_cm2  # mW/cm2
 ```
 
-## LCD1602
+## LCD1602, LCD2004
 
 - Not a sensor, obviously. Useful for displaying sensor data.
 - Use `i2cdetect -y 1` to check address. It is probably `0x27`.
+- Both are used the same way. Just supply the correct class name, as below.
 
 ```python
 from sensor.LCD1602 import LCD1602
