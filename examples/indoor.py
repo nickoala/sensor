@@ -83,7 +83,7 @@ TOKEN = sys.argv[1]
 USER_ID = long(sys.argv[2])
 
 bot = telepot.Bot(TOKEN)
-bot.notifyOnMessage(handle)
+bot.message_loop(handle)
 
 # variables for periodic reporting
 last_report = None
