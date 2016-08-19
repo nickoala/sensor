@@ -1,6 +1,6 @@
 # Raspberry Pi Sensors
 
-This is a **Python** package that enables **Raspberry Pi** to read various sensors (and interact with some non-sensors). It has been tested on **Python 2.7** running on **Raspbian** on Raspberry Pi **2** Model **B**.
+This is a **Python** package that enables **Raspberry Pi** to read various sensors (and interact with some non-sensors). It has been tested on **Python 2.7**/**Raspbian**.
 
 Supported devices include:
 - **DS18B20** temperature sensor
@@ -18,11 +18,6 @@ It is best to update Linux first.
 
 `sudo apt-get update`  
 `sudo apt-get upgrade`
-
-For **Raspbian Jessie**, you may have to do the following to fix `pip` (because of its using an older version of `requests`):
-
-`sudo apt-get remove python-pip`  
-`sudo easy_install -U pip`
 
 Install this package:
 
@@ -42,14 +37,14 @@ dtoverlay=w1-gpio
 
 `sudo apt-get install i2c-tools python-smbus`
 
-`sudo nano /etc/modules`, add this line:
+`sudo nano /etc/modules`, make sure this line is there:
 ```
 i2c-dev
 ```
 
-`sudo nano /boot/config.txt`, add this line:
+`sudo nano /boot/config.txt`, add this line (or uncomment it):
 ```
-dtparam=i2c1=on
+dtparam=i2c_arm=on
 ```
 **Reboot.**
 
@@ -58,7 +53,7 @@ dtparam=i2c1=on
 `sudo apt-get install python-dev`  
 `sudo pip install spidev`
 
-`sudo nano /boot/config.txt`, add this line:
+`sudo nano /boot/config.txt`, add this line (or uncomment it):
 ```
 dtparam=spi=on
 ```
@@ -83,8 +78,6 @@ Unlike many libraries out there, this library does not return a simple Celcius d
 
 - No more conversion needed. Suppose you get a *Temperature* called `t`, you may access the Celcius degree by `t.C` as easily as you do Fahrenheit by `t.F`.
 - Namedtuples may have methods. For example, a *Pressure* has a method called `altitude()`, which tells you how high you are above mean sea level. It is convenient and intuitive.
-
-Keep reading to see how it really works ...
 
 ## DS18B20
 
