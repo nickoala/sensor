@@ -70,7 +70,7 @@ For example:
 To find out individual sensor's address:
 - For 1-wire sensors, go to `/sys/bus/w1/devices/`, and look for a long sequence of numbers
 - For I2C sensors, use `i2cdetect -y 1`
-- For SPI sensors, you should know which CS pin you used
+- For SPI sensors, you should know which CS pin you use
 
 ## My sensors don't give simple numbers
 
