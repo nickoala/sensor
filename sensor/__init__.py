@@ -128,7 +128,7 @@ Downloaded and adapted from:
 import smbus
 
 class i2c_device:
-    def __init__(self, addr, port=1):
+    def __init__(self, addr, port):
         self.addr = addr
         self.bus = smbus.SMBus(port)
 
@@ -211,7 +211,7 @@ class LCDBase(object):
 
     #initializes objects and lcd
     def __init__(self, bus, addr):
-        self._lcd_device = i2c_device(addr)
+        self._lcd_device = i2c_device(addr, bus)
         self._write(0x03)
         self._write(0x03)
         self._write(0x03)
