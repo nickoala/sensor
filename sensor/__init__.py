@@ -49,7 +49,7 @@
 import time
 import threading
 
-__all__ = ['util', 'DS18B20', 'BMP180', 'HTU21D', 'MCP3004', 'ML8511', 'LCD1602', 'LCD2004']
+__all__ = ['util', 'DS18B20', 'BMP180', 'HTU21D', 'MCP3004', 'LCD1602']
 
 # Locks for buses: subclasses of SensorBase should apply the appropriate
 # decorator(s) to ensure only one device is accessing a particular bus

@@ -162,7 +162,7 @@ class BMP180(sensor.SensorBase):
         (self._ac1, self._ac2, self._ac3, self._ac4,
          self._ac5, self._ac6, self._b1, self._b2,
          self._mb, self._mc, self._md) = struct.unpack(
-             '>hhhHHHhhhhh', ''.join([chr(x) for x in calib]))
+             '>hhhHHHhhhhh', bytes(calib))
 
     @sensor.i2c_lock
     def _update_sensor_data(self):
@@ -183,9 +183,9 @@ class BMP180(sensor.SensorBase):
         up = (vals[0] << 16 | vals[1] << 8 | vals[0]) >> (8 - self._os_mode)
 
         x1 = ((ut - self._ac6) * self._ac5) >> 15
-        x2 = (self._mc << 11) / (x1 + self._md)
+        x2 = (self._mc << 11) // (x1 + self._md)
         b5 = x1 + x2
-        self._temperature = ((b5 + 8) / 2**4) / 10.0
+        self._temperature = ((b5 + 8) // 2**4) / 10.0
 
         b6 = b5 - 4000
         x1 = self._b2 * ((b6 * b6) >> 12)
@@ -198,35 +198,10 @@ class BMP180(sensor.SensorBase):
         b4 = (self._ac4 * (x3 + 32768)) >> 15
         b7 = (up - b3) * (50000 >> self._os_mode)
         if (b7 < 0x80000000):
-            p = (b7 * 2) / b4
+            p = (b7 * 2) // b4
         else:
-            p = (b7 / b4) * 2
+            p = (b7 // b4) * 2
         x1 = p**2 >> 16
         x1 = (x1 * 3038) >> 16
         x2 = (-7357 * p) >> 16
         self._pressure = (p + ((x1 + x2 + 3791) >> 4)) / 100.0
-
-
-""" Run this file as a test script
-$ i2cdetect -y 1  # find the sensor's I2C address
-$ python BMP180.py <bus> <hex address>
-
-On Raspi, it is probably:
-$ python BMP180.py 1 0x77
-"""
-if __name__ == '__main__':
-    import sys
-
-    bus = int(sys.argv[1])
-    addr = int(sys.argv[2], 16)
-
-    sensor = BMP180(bus, addr)
-    for cache in [0, 5]:
-        print '**********'
-        print 'Cache lifetime is %d' % cache
-        sensor.cache_lifetime = cache
-        for mode in [OS_MODE_SINGLE, OS_MODE_2, OS_MODE_4, OS_MODE_8]:
-            sensor.os_mode = mode
-            print 'Oversampling mode is %d' % mode
-            for c in range(10):
-                print sensor.all()

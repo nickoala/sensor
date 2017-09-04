@@ -5,10 +5,13 @@ import time
 import traceback
 import signal
 import telepot
-from sensor import DS18B20, HTU21D, BMP180, LCD1602
+from sensor.DS18B20 import DS18B20
+from sensor.HTU21D import HTU21D
+from sensor.BMP180 import BMP180
+from sensor.LCD1602 import LCD1602
 
 """
-$ python2.7 indoor.py <token> <user_id>
+$ python3 indoor.py <token> <user_id>
 
 An indoor climate monitor with 3 sensors and an LCD display.
 
@@ -18,10 +21,10 @@ To know more about Telegram Bot and telepot, go to:
   https://github.com/nickoala/telepot
 """
 
-ds = DS18B20.DS18B20('28-000007355d64')
-htu = HTU21D.HTU21D(1, 0x40)
-bmp = BMP180.BMP180(1, 0x77)
-lcd = LCD1602.LCD1602(1, 0x27)
+ds = DS18B20('28-00000736781c')
+htu = HTU21D(1, 0x40)
+bmp = BMP180(1, 0x77)
+lcd = LCD1602(1, 0x27)
 
 def read_all():
     return ds.temperature(), htu.humidity(), bmp.pressure()
@@ -80,7 +83,7 @@ signal.signal(signal.SIGTERM, on_sigterm)
 
 
 TOKEN = sys.argv[1]
-USER_ID = long(sys.argv[2])
+USER_ID = int(sys.argv[2])
 
 bot = telepot.Bot(TOKEN)
 bot.message_loop(handle)

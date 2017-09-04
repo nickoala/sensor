@@ -73,11 +73,11 @@ _DISABLE_OTP_RELOAD    = 0b00000010
 _RESERVED_BITMASK      = 0b00111000
 
 # Commands
-_CMD_TEMPERATURE  = '\xF3'
-_CMD_HUMIDITY     = '\xF5'
-_CMD_WRITE_CONFIG = '\xE6'
-_CMD_READ_CONFIG  = '\xE7'
-_CMD_SOFT_RESET   = '\xFE'
+_CMD_TEMPERATURE  = b'\xF3'
+_CMD_HUMIDITY     = b'\xF5'
+_CMD_WRITE_CONFIG = b'\xE6'
+_CMD_READ_CONFIG  = b'\xE7'
+_CMD_SOFT_RESET   = b'\xFE'
 
 # Data bits specification
 _STATUS_BITMASK     = 0b00000011
@@ -133,7 +133,7 @@ class HTU21D(sensor.SensorBase):
 
     def all(self):
         self._update()
-        
+
         h = Humidity(RH=self._humidity)
         t = Temperature(C=self._temperature) if self._temperature is not None else None
         return (h, t)
@@ -199,30 +199,3 @@ class HTU21D(sensor.SensorBase):
         (humidhigh, humidlow, crc) = struct.unpack('BBB', vals)
         humid = (humidhigh << 8) | (humidlow & _STATUS_LSBMASK)
         self._humidity = -6 + (125.0 * humid) / 2**16
-
-
-""" Run this file as a test script
-$ i2cdetect -y 1  # find the sensor's I2C address
-$ python HTU21D.py <bus> <hex address>
-
-On Raspi, it is probably:
-$ python HTU21D.py 1 0x40
-"""
-if __name__ == '__main__':
-    import sys
-
-    bus = int(sys.argv[1])
-    addr = int(sys.argv[2], 16)
-
-    sensor = HTU21D(bus, addr)
-    for cache in [0, 5]:
-        print '**********'
-        print 'Cache lifetime is %d' % cache
-        sensor.cache_lifetime = cache
-        for c in range(10):
-            for res in [RESOLUTION_12BITS,
-                        RESOLUTION_8BITS,
-                        RESOLUTION_10BITS,
-                        RESOLUTION_11BITS]:
-                sensor.resolution = res
-                print sensor.all()
