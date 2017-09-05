@@ -5,6 +5,7 @@ import time
 import traceback
 import signal
 import telepot
+from telepot.loop import MessageLoop
 from sensor.DS18B20 import DS18B20
 from sensor.HTU21D import HTU21D
 from sensor.BMP180 import BMP180
@@ -86,7 +87,8 @@ TOKEN = sys.argv[1]
 USER_ID = int(sys.argv[2])
 
 bot = telepot.Bot(TOKEN)
-bot.message_loop(handle)
+
+MessageLoop(bot, handle).run_as_thread()
 
 # variables for periodic reporting
 last_report = None
