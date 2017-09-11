@@ -44,7 +44,7 @@ returns HTU21D's humidity and temperature readings in JSON format. In my case,
 the HTU21D sensor is local and not actually remote, but it illustrates the
 principle nonetheless.
 
-First, install [Flask](flask.pocoo.org) web framework:
+First, install [Flask](http://flask.pocoo.org) web framework:
 
 ```
 sudo pip3 install Flask
