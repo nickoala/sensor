@@ -26,6 +26,7 @@ ds = DS18B20('28-00000736781c')
 htu = HTU21D(1, 0x40)
 bmp = BMP180(1, 0x77)
 lcd = LCD1602(1, 0x27)
+lcd.clear()
 
 def read_all():
     return ds.temperature(), htu.humidity(), bmp.pressure()

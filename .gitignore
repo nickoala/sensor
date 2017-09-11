@@ -3,3 +3,4 @@ sensor.egg-info/
 dist/
 todo.txt
 .remote-sync.json
+configuration.yaml

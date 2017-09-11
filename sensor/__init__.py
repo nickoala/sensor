@@ -218,7 +218,6 @@ class LCDBase(object):
         self._write(0x02)
         self._write(LCD_FUNCTIONSET | LCD_2LINE | LCD_5x8DOTS | LCD_4BITMODE)
         self._write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)
-        self._write(LCD_CLEARDISPLAY)
         self._write(LCD_ENTRYMODESET | LCD_ENTRYLEFT)
         time.sleep(0.2)
 
