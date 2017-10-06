@@ -2,11 +2,13 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.52.1**
+Assistant version is **0.54.0**, released on September 23, 2017.
 
 ## Installation
 
 ```
+sudo apt-get update
+sudo apt-get upgrade
 sudo pip3 install homeassistant
 
 hass     # start Home Assistant webserver
@@ -15,6 +17,8 @@ hass     # start Home Assistant webserver
 The first time running `hass` takes a little long because it has to install a
 few more Python packages. After a while, you should be able to access it by
 pointing your browser to `http://<Raspi's IP address>:8123`
+
+Sensor integration is done by modifying the file `/home/pi/.homeassistant/configuration.yaml`
 
 ## DS18B20 as [Command Line Sensor](https://home-assistant.io/components/sensor.command_line/)
 
@@ -64,7 +68,7 @@ REST service to obtain the humidity:
 sensor:
   - platform: rest
     name: HTU21D Sensor
-    resource: http://127.0.0.1:5000/read
+    resource: http://127.0.0.1:5000/htu21d
     value_template: '{{ value_json.humidity | round(1) }}'
     unit_of_measurement: "%"
     scan_interval: 5
@@ -153,7 +157,7 @@ automation:
   - alias: Turn ON light if somebody
     trigger:
       platform: state
-      entity_id: binary_sensor.pir_desk
+      entity_id: binary_sensor.pir_bedroom
       to: 'on'
     action:
       service: light.turn_on
@@ -162,14 +166,14 @@ automation:
   - alias: Turn OFF light if nobody
     trigger:
       platform: state
-      entity_id: binary_sensor.pir_desk
+      entity_id: binary_sensor.pir_bedroom
       to: 'off'
     action:
       service: light.turn_off
       entity_id: light.book_room_light
 ```
 
-## Automation: Send a Telegram message when Someone is At Home
+## Automation: Send a Telegram message when Someone is Home
 
 ```
 automation:

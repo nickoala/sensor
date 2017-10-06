@@ -3,8 +3,8 @@ from flask import Flask, Response, json
 
 app = Flask(__name__)
 
-@app.route("/read")
-def hello():
+@app.route("/htu21d")
+def read_htu21d():
     htu = HTU21D(1, 0x40)
     h,t = htu.all()
 
