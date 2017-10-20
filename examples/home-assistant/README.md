@@ -193,8 +193,8 @@ automation:
 The script [lcd_display.py](./lcd_display.py) accepts a temperature and humidity
 as command line arguments, and displays them on an LCD1602. It can be exposed as
 a [Shell Command](https://home-assistant.io/components/shell_command/) service,
-and triggered on temperature or humidity changes, effectively refreshing the
-LCD display.
+and triggered on HomeAssistant startup and on temperature or humidity changes,
+effectively keeping the LCD display up-to-date.
 
 ```
 shell_command:
@@ -209,6 +209,13 @@ automation:
         entity_id: sensor.ds18b20_sensor
       - platform: state
         entity_id: sensor.htu21d_sensor
+    action:
+      service: shell_command.lcd_display
+
+  - alias: LCD display on startup
+    trigger:
+      platform: homeassistant
+      event: start
     action:
       service: shell_command.lcd_display
 ```
