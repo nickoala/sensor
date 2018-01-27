@@ -2,7 +2,7 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.54.0**, released on September 23, 2017.
+Assistant version is **0.61.1**, released on January 16, 2018.
 
 ## Installation
 
@@ -90,6 +90,7 @@ binary_sensor:
 ```
 light:
   - platform: tplink
+    name: Book Room Light
     host: 192.168.0.103
 ```
 
@@ -98,6 +99,7 @@ light:
 ```
 switch:
   - platform: tplink
+    name: Fan Plug
     host: 192.168.0.104
 ```
 
@@ -224,6 +226,14 @@ automation:
 
 ## [Sun Trigger](https://home-assistant.io/docs/automation/trigger/#sun-trigger) and [Time Trigger](https://home-assistant.io/docs/automation/trigger/#time-trigger)
 
+## [Raspberry Pi Camera](https://home-assistant.io/components/camera.rpi_camera/)
+
+```
+camera:
+  - platform: rpi_camera
+    file_path: /path/to/temporary.jpg
+```
+
 ## Run on Startup
 
 Remember, there are two things to run: the **Home Assistant** platform itself, and the
@@ -297,16 +307,16 @@ experiences below:
    obtain a 90-day SSL certificate from **[Let's Encrypt](https://letsencrypt.org/how-it-works/)**.
 
    During the process, Certbot will spin up a temporary webserver on Raspberry
-   Pi's port 443 for Let's Encrypt to verify the control of domain. Normally,
+   Pi's port 80 for Let's Encrypt to verify the control of domain. Normally,
    incoming traffic cannot get through the router, unless a port-forward exists.
 
-   So, set up a **port-forward `Router port 443` → `Pi Port 443`**.
+   So, set up a **port-forward `Router port 80` → `Pi Port 80`**.
 
    Install certbot and use it to obtain a certificate:
 
    ```
    sudo apt-get install certbot
-   sudo certbot certonly --standalone -d example.duckdns.org
+   sudo certbot certonly --standalone -d yourdomain.duckdns.org
    ```
 
    Resulting contents are put in the directory `/etc/letsencrypt`.
@@ -329,9 +339,9 @@ experiences below:
    ```
    http:
      api_password: raspberry
-     ssl_certificate: /etc/letsencrypt/live/example.duckdns.org/fullchain.pem
-     ssl_key: /etc/letsencrypt/live/example.duckdns.org/privkey.pem
-     base_url: example.duckdns.org
+     ssl_certificate: /etc/letsencrypt/live/yourdomain.duckdns.org/fullchain.pem
+     ssl_key: /etc/letsencrypt/live/yourdomain.duckdns.org/privkey.pem
+     base_url: yourdomain.duckdns.org
    ```
 
    Finally, we are ready to access Home Assistant on **HTTPS**. HTTPS runs on
@@ -347,7 +357,7 @@ contacting port 80 (HTTP), which should be blocked by the router.
 ```
 import homeassistant.remote as remote
 
-api = remote.API('example.duckdns.org', 'raspberry', port=443, use_ssl=True)
+api = remote.API('yourdomain.duckdns.org', '***password***', port=443, use_ssl=True)
 
 remote.validate_api(api)
 remote.get_config(api)
