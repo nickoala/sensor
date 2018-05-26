@@ -2,7 +2,7 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.61.1**, released on January 16, 2018.
+Assistant version is **0.69.1**, released on May 12, 2018.
 
 ## Installation
 
@@ -37,41 +37,6 @@ sensor:
     value_template: '{{ value | round(1) }}'
     unit_of_measurement: "°C"
     scan_interval: 3
-```
-
-## HTU21D as [RESTful Sensor](https://home-assistant.io/components/sensor.rest/)
-
-If a sensor is remote, expose it as a REST service.
-
-The script [rest_sensor.py](./rest_sensor.py) is a simple Flask server which
-returns HTU21D's humidity and temperature readings in JSON format. In my case,
-the HTU21D sensor is local and not actually remote, but it illustrates the
-principle nonetheless.
-
-First, install [Flask](http://flask.pocoo.org) web framework:
-
-```
-sudo pip3 install Flask
-```
-
-Then, run `rest_sensor.py` as a Flask server at default port 5000:
-
-```
-export FLASK_APP=/path/to/rest_sensor.py
-python3 -m flask run --host=0.0.0.0
-```
-
-The following lines in `configuration.yaml` tells Home Assistant to query the
-REST service to obtain the humidity:
-
-```
-sensor:
-  - platform: rest
-    name: HTU21D Sensor
-    resource: http://127.0.0.1:5000/htu21d
-    value_template: '{{ value_json.humidity | round(1) }}'
-    unit_of_measurement: "%"
-    scan_interval: 5
 ```
 
 ## PIR motion as [GPIO Binary Sensor](https://home-assistant.io/components/binary_sensor.rpi_gpio/)
@@ -118,110 +83,66 @@ notify:
     chat_id: 999999999
 ```
 
-## Comment out default automation file
-
-Find the following line, **comment it out** because we are going to add
-automation sections in file:
-
-```
-# automation: !include automations.yaml
-```
-
-#### For everything below, adjust `entity_id` accordingly
-
 ## Automation: Turn ON/OFF Smart Plug depending on Temperature
 
-```
-automation:
-  - alias: Turn ON fan if too hot
-    trigger:
-      platform: numeric_state
-      entity_id: sensor.ds18b20_sensor
-      above: 32
-    action:
-      service: switch.turn_on
-      entity_id: switch.fan_plug
+**For everything below, adjust `entity_id` accordingly.**
 
-  - alias: Turn OFF fan if too cool
-    trigger:
-      platform: numeric_state
-      entity_id: sensor.ds18b20_sensor
-      below: 31
-    action:
-      service: switch.turn_off
-      entity_id: switch.fan_plug
-```
-
-## Automation: Turn ON/OFF Smart Bulb depending on Human Presense
+Insert the following contents into `/home/pi/.homeassistant/automations.yaml`:
 
 ```
-automation:
-  - alias: Turn ON light if somebody
-    trigger:
-      platform: state
-      entity_id: binary_sensor.pir_bedroom
-      to: 'on'
-    action:
-      service: light.turn_on
-      entity_id: light.book_room_light
+- alias: Turn ON fan if too hot
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.ds18b20_sensor
+    above: 31.5
+  action:
+    service: switch.turn_on
+    entity_id: switch.fan_plug
 
-  - alias: Turn OFF light if nobody
-    trigger:
-      platform: state
-      entity_id: binary_sensor.pir_bedroom
-      to: 'off'
-    action:
-      service: light.turn_off
-      entity_id: light.book_room_light
+- alias: Turn OFF fan if too cool
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.ds18b20_sensor
+    below: 31
+  action:
+    service: switch.turn_off
+    entity_id: switch.fan_plug
+```
+
+## Automation: Turn ON/OFF Smart Bulb depending on Human Presence
+
+```
+- alias: Turn ON light if somebody
+  trigger:
+    platform: state
+    entity_id: binary_sensor.pir_bedroom
+    to: 'on'
+  action:
+    service: light.turn_on
+    entity_id: light.book_room_light
+
+- alias: Turn OFF light if nobody
+  trigger:
+    platform: state
+    entity_id: binary_sensor.pir_bedroom
+    to: 'off'
+  action:
+    service: light.turn_off
+    entity_id: light.book_room_light
 ```
 
 ## Automation: Send a Telegram message when Someone is Home
 
 ```
-automation:
-  - alias: Notify me if someone comes home
-    trigger:
-      platform: state
-      entity_id: binary_sensor.pir_bedroom
-      to: 'on'
-    action:
-      service: notify.TelegramBot
-      data:
-        message: 'Somebody is home'
-```
-
-## Automation: Refresh LCD Display on State Changes
-
-The script [lcd_display.py](./lcd_display.py) accepts a temperature and humidity
-as command line arguments, and displays them on an LCD1602. It can be exposed as
-a [Shell Command](https://home-assistant.io/components/shell_command/) service,
-and triggered on HomeAssistant startup and on temperature or humidity changes,
-effectively keeping the LCD display up-to-date. Note the `-` in front of
-`platform` for the refreshing trigger. This is how you specify multiple triggers
-for an automation rule.
-
-```
-shell_command:
-  lcd_display: 'python3 /path/to/lcd_display.py \
-                        {{ states.sensor.ds18b20_sensor.state }} \
-                        {{ states.sensor.htu21d_sensor.state }}'
-
-automation:
-  - alias: Refresh LCD display
-    trigger:
-      - platform: state
-        entity_id: sensor.ds18b20_sensor
-      - platform: state
-        entity_id: sensor.htu21d_sensor
-    action:
-      service: shell_command.lcd_display
-
-  - alias: LCD display on startup
-    trigger:
-      platform: homeassistant
-      event: start
-    action:
-      service: shell_command.lcd_display
+- alias: Notify me if someone comes home
+  trigger:
+    platform: state
+    entity_id: binary_sensor.pir_bedroom
+    to: 'on'
+  action:
+    service: notify.TelegramBot
+    data:
+      message: 'Somebody is home'
 ```
 
 ## [Sun Trigger](https://home-assistant.io/docs/automation/trigger/#sun-trigger) and [Time Trigger](https://home-assistant.io/docs/automation/trigger/#time-trigger)
@@ -236,36 +157,15 @@ camera:
 
 ## Run on Startup
 
-Remember, there are two things to run: the **Home Assistant** platform itself, and the
-**HTU21D REST sensor service**. The latter should be run first, because the former
-depends on it.
-
 To run programs on startup, we create systemd services.
 
-In directory `/lib/systemd/system`, create a file `restsensor.service` and
+In directory `/lib/systemd/system`, create a file `homeassistant.service` and
 insert the following contents:
 
 ```
 [Unit]
-Description=RESTful Sensor
-After=network.target
-
-[Service]
-Environment=FLASK_APP=/path/to/rest_sensor.py
-ExecStart=/usr/bin/python3 -m flask run --host=0.0.0.0
-User=pi
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Also in directory `/lib/systemd/system`, create another file
-`homeassistant.service` and insert the following contents:
-
-```
-[Unit]
 Description=Home Assistant
-After=network.target restsensor.service
+After=network.target
 
 [Service]
 ExecStart=/usr/local/bin/hass
@@ -275,8 +175,7 @@ User=pi
 WantedBy=multi-user.target
 ```
 
-Then, you can control the services in standardized ways. I use
-`homeassistant.service` as examples. The same applies to `restsensor.service`:
+Then, you can control the service using `systemctl`:
 
 To run it manually: `sudo systemctl start homeassistant.service`  
 To stop it manually: `sudo systemctl stop homeassistant.service`  
