@@ -3,18 +3,16 @@
 import sys
 import time
 import traceback
-import signal
 import telepot
 from telepot.loop import MessageLoop
 from sensor.DS18B20 import DS18B20
 from sensor.HTU21D import HTU21D
 from sensor.BMP180 import BMP180
-from sensor.LCD1602 import LCD1602
 
 """
 $ python3 indoor.py <token> <user_id>
 
-An indoor climate monitor with 3 sensors and an LCD display.
+An indoor climate monitor with 3 sensors.
 
 It also comes with a Telegram bot that can report data periodically.
 
@@ -25,17 +23,9 @@ To know more about Telegram Bot and telepot, go to:
 ds = DS18B20('28-00000736781c')
 htu = HTU21D(1, 0x40)
 bmp = BMP180(1, 0x77)
-lcd = LCD1602(1, 0x27)
-lcd.clear()
 
 def read_all():
     return ds.temperature(), htu.humidity(), bmp.pressure()
-
-# Read sensors and display on LCD
-def lcd_display():
-    t, h, p = read_all()
-    lcd.display('%.1f C    %.1f%%' % (t.C, h.RH), 1)
-    lcd.display('   %.1f hPa' % p.hPa, 2)
 
 # Read sensors and send to user
 def read_send(chat_id):
@@ -76,14 +66,6 @@ def handle(msg):
         bot.sendMessage(chat_id, "I don't understand")
 
 
-def on_sigterm(signum, frame):
-    sys.exit(0)
-    # raise SystemExit so the `finally` clause gets executed
-
-# catch termination signal so LCD is cleared
-signal.signal(signal.SIGTERM, on_sigterm)
-
-
 TOKEN = sys.argv[1]
 USER_ID = int(sys.argv[2])
 
@@ -95,19 +77,16 @@ MessageLoop(bot, handle).run_as_thread()
 last_report = None
 report_interval = None
 
-try:
-    while 1:
-        lcd_display()
+while 1:
+    # Is it time to report again?
+    now = time.time()
+    if (report_interval is not None
+            and last_report is not None
+            and now - last_report >= report_interval):
+        try:
+            read_send(USER_ID)
+            last_report = now
+        except:
+            traceback.print_exc()
 
-        # Is it time to report again?
-        now = time.time()
-        if report_interval is not None and last_report is not None and now - last_report >= report_interval:
-            try:
-                read_send(USER_ID)
-                last_report = now
-            except:
-                traceback.print_exc()
-
-        time.sleep(1)
-finally:
-    lcd.clear()
+    time.sleep(1)
