@@ -86,6 +86,10 @@ _STATUS_HUMIDITY    = 0b00000010
 _STATUS_LSBMASK     = 0b11111100
 
 class HTU21D(sensor.SensorBase):
+    SOFT_RESET_DELAY = 0.02
+    TEMPERATURE_DELAY = 0.05
+    HUMIDITY_DELAY = 0.02
+
     def __init__(self, bus, addr,
                  resolution = RESOLUTION_12BITS,
                  use_temperature = True):
@@ -171,7 +175,7 @@ class HTU21D(sensor.SensorBase):
 
     def _reset(self):
         self._iow.write(_CMD_SOFT_RESET)
-        time.sleep(0.02)
+        time.sleep(self.SOFT_RESET_DELAY)
 
     def _reconfigure(self):
         self._iow.write(_CMD_READ_CONFIG)
@@ -187,14 +191,14 @@ class HTU21D(sensor.SensorBase):
     def _update_sensor_data(self):
         if self._use_temperature is True:
             self._iow.write(_CMD_TEMPERATURE)
-            time.sleep(0.05)
+            time.sleep(self.TEMPERATURE_DELAY)
             vals = self._ior.read(3)
             (temphigh, templow, crc) = struct.unpack('BBB', vals)
             temp = (temphigh << 8) | (templow & _STATUS_LSBMASK)
             self._temperature = -46.85 + (175.72 * temp) / 2**16
 
         self._iow.write(_CMD_HUMIDITY)
-        time.sleep(0.02)
+        time.sleep(self.HUMIDITY_DELAY)
         vals = self._ior.read(3)
         (humidhigh, humidlow, crc) = struct.unpack('BBB', vals)
         humid = (humidhigh << 8) | (humidlow & _STATUS_LSBMASK)

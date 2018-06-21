@@ -1,0 +1,5 @@
+from sensor.HTU21D import HTU21D
+
+class SHT20(HTU21D):
+    TEMPERATURE_DELAY = 0.1
+    HUMIDITY_DELAY = 0.04

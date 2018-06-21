@@ -8,6 +8,7 @@ Supported devices include:
 - **DS18B20** temperature sensor
 - **BMP180** pressure and temperature sensor
 - **HTU21D** humidity and temperature sensor
+- **SHT20** humidity and temperature sensor
 - **MCP3004** A/D Converter (**MCP3008** also compatible)
 - **LCD1602** display
 
@@ -171,6 +172,28 @@ print(t)               # namedtuple
 print(t.F)             # Fahrenheit
 
 h, t = htu.all()  # read both at once
+```
+
+## SHT20
+
+- Humidity + Temperature, I2C
+- Use `i2cdetect -y 1` to check address. It is probably `0x40`.
+
+```python
+from sensor.SHT20 import SHT20
+
+# I2C bus=1, Address=0x40
+sht = SHT20(1, 0x40)
+
+h = sht.humidity()  # read humidity
+print(h)            # namedtuple
+print(h.RH)         # relative humidity
+
+t = sht.temperature()  # read temperature
+print(t)               # namedtuple
+print(t.C)             # Celsius
+
+h, t = sht.all()  # read both at once
 ```
 
 ## MCP3004
