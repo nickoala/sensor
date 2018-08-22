@@ -216,15 +216,15 @@ end
 
 ## Use [myopenhab.org](http://www.myopenhab.org/) for remote access
 
-1. Register for an account on [myopenhab.org](http://www.myopenhab.org/). You
+1. Paper UI → Add-ons → Misc → Install **openHAB Cloud Connector**
+
+2. Paper UI → Configuration → Services → Configure openHAB Cloud
+
+3. Register for an account on [myopenhab.org](http://www.myopenhab.org/). You
    will be asked for **openHAB UUID** and **openHAB secret**:
 
    - Find UUID in `/var/lib/openhab2/uuid`
    - Find secret in `/var/lib/openhab2/openhabcloud/secret`
-
-2. Paper UI → Add-ons → Misc → Install **openHAB Cloud Connector**
-
-3. Paper UI → Configuration → Services → Configure openHAB Cloud
 
 ## LB100 Smart LED Bulb on [TPLinkSmartHome Binding](https://www.openhab.org/addons/bindings/tplinksmarthome/)
 
