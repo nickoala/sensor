@@ -2,13 +2,14 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.69.1**, released on May 12, 2018.
+Assistant version is **0.82.1**, released on November 15, 2018.
 
 ## Installation
 
 ```
 sudo apt-get update
-sudo apt-get upgrade
+sudo apt-get dist-upgrade
+sudo pip3 install pip wheel --upgrade
 sudo pip3 install homeassistant
 
 hass     # start Home Assistant webserver
@@ -37,17 +38,6 @@ sensor:
     value_template: '{{ value | round(1) }}'
     unit_of_measurement: "°C"
     scan_interval: 3
-```
-
-## PIR motion as [GPIO Binary Sensor](https://home-assistant.io/components/binary_sensor.rpi_gpio/)
-
-A PIR motion sensor is binary and is read by GPIO directly:
-
-```
-binary_sensor:
-  - platform: rpi_gpio
-    ports:
-      18: PIR Bedroom    # BCM pin numbering
 ```
 
 ## [TP-Link LB100](https://home-assistant.io/components/light.tplink/) Smart Wi-Fi LED Bulb
@@ -109,51 +99,21 @@ Insert the following contents into `/home/pi/.homeassistant/automations.yaml`:
     entity_id: switch.fan_plug
 ```
 
-## Automation: Turn ON/OFF Smart Bulb depending on Human Presence
+## Automation: Send a Telegram message when Temperature gets too hot
 
 ```
-- alias: Turn ON light if somebody
+- alias: Notify me if too hot
   trigger:
-    platform: state
-    entity_id: binary_sensor.pir_bedroom
-    to: 'on'
-  action:
-    service: light.turn_on
-    entity_id: light.book_room_light
-
-- alias: Turn OFF light if nobody
-  trigger:
-    platform: state
-    entity_id: binary_sensor.pir_bedroom
-    to: 'off'
-  action:
-    service: light.turn_off
-    entity_id: light.book_room_light
-```
-
-## Automation: Send a Telegram message when Someone is Home
-
-```
-- alias: Notify me if someone comes home
-  trigger:
-    platform: state
-    entity_id: binary_sensor.pir_bedroom
-    to: 'on'
+    platform: numeric_state
+    entity_id: sensor.ds18b20_sensor
+    above: 32
   action:
     service: notify.TelegramBot
     data:
-      message: 'Somebody is home'
+      message: "\U0001f525"  # Fire emoji
 ```
 
 ## [Sun Trigger](https://home-assistant.io/docs/automation/trigger/#sun-trigger) and [Time Trigger](https://home-assistant.io/docs/automation/trigger/#time-trigger)
-
-## [Raspberry Pi Camera](https://home-assistant.io/components/camera.rpi_camera/)
-
-```
-camera:
-  - platform: rpi_camera
-    file_path: /path/to/temporary.jpg
-```
 
 ## Run on Startup
 
@@ -186,7 +146,7 @@ To stop it from running on startup: `sudo systemctl disable homeassistant.servic
 ## Dynamic DNS and SSL Certificate
 
 This [blog post](https://home-assistant.io/blog/2015/12/13/setup-encryption-using-lets-encrypt/)
-tells you how to set up Dynamic DNS and SSL certificate. Its intructions are not
+tells you how to set up Dynamic DNS and SSL certificate. Its instructions are not
 tailored to Raspberry Pi and seem a little out-of-date. I summarize my
 experiences below:
 
@@ -220,13 +180,12 @@ experiences below:
 
    Resulting contents are put in the directory `/etc/letsencrypt`.
    Certificate-related files are in `/etc/letsencrypt/live`. Most stuff there
-   are accessible by root only. To be used by Home Assistant, their accessibility
-   has to be loosen:
+   are accessible by root only. To be used by Home Assistant, permission has to
+   be loosen:
 
    ```
    cd /etc/letsencrypt
-   sudo chmod +rx live
-   sudo chmod +rx archive
+   sudo chmod +rx live archive
    ```
 
    The SSL certificate is now ready.
@@ -237,7 +196,6 @@ experiences below:
 
    ```
    http:
-     api_password: raspberry
      ssl_certificate: /etc/letsencrypt/live/yourdomain.duckdns.org/fullchain.pem
      ssl_key: /etc/letsencrypt/live/yourdomain.duckdns.org/privkey.pem
      base_url: yourdomain.duckdns.org
@@ -250,21 +208,3 @@ experiences below:
 On the browser, remember to explicitly **force the communication protocol by
 typing `https://` before the domain**. Otherwise, the browser may default to
 contacting port 80 (HTTP), which should be blocked by the router.
-
-## [Python Remote API](https://home-assistant.io/developers/python_api/)
-
-```
-import homeassistant.remote as remote
-
-api = remote.API('yourdomain.duckdns.org', '***password***', port=443, use_ssl=True)
-
-remote.validate_api(api)
-remote.get_config(api)
-
-remote.get_state(api, 'sensor.ds18b20_sensor')
-
-remote.call_service(api, 'light', 'turn_on')
-remote.call_service(api, 'light', 'turn_off')
-remote.call_service(api, 'light', 'turn_on', {'entity_id': 'light.book_room_light'})
-remote.call_service(api, 'light', 'toggle', {'entity_id': 'light.book_room_light'})
-```

@@ -6,13 +6,12 @@ import traceback
 import telepot
 from telepot.loop import MessageLoop
 from sensor.DS18B20 import DS18B20
-from sensor.HTU21D import HTU21D
-from sensor.BMP180 import BMP180
+from sensor.SHT20 import SHT20
 
 """
 $ python3 indoor.py <token> <user_id>
 
-An indoor climate monitor with 3 sensors.
+An indoor climate monitor with 2 sensors.
 
 It also comes with a Telegram bot that can report data periodically.
 
@@ -21,16 +20,15 @@ To know more about Telegram Bot and telepot, go to:
 """
 
 ds = DS18B20('28-00000736781c')
-htu = HTU21D(1, 0x40)
-bmp = BMP180(1, 0x77)
+sht = SHT20(1, 0x40)
 
 def read_all():
-    return ds.temperature(), htu.humidity(), bmp.pressure()
+    return ds.temperature(), sht.humidity()
 
 # Read sensors and send to user
 def read_send(chat_id):
-    t, h, p = read_all()
-    msg = '{:.1f}°C  {:.1f}%  {:,.1f}hPa'.format(t.C, h.RH, p.hPa)
+    t, h = read_all()
+    msg = '{:.1f}°C  {:.1f}%'.format(t.C, h.RH)
     bot.sendMessage(chat_id, msg)
 
 def handle(msg):

@@ -22,7 +22,7 @@ once and they are set (for my course, anyway). I hope you find it useful, too.
 It is best to update Linux first.
 
 `sudo apt-get update`  
-`sudo apt-get upgrade`
+`sudo apt-get dist-upgrade`
 
 Install this package:
 
@@ -30,42 +30,13 @@ Install this package:
 
 But the `sensor` package would not work by itself. Communicating with sensors
 often requires some sort of serial protocol, such as **1-wire**, **I2C**, or
-**SPI**. You have to know which sensor speaks which, and set up Linux and Python
-accordingly.
+**SPI**. You have to know which sensor speaks which, and set up Raspberry Pi to
+do so.
 
-## Enable 1-Wire
+## Enable 1-Wire, I2C, or SPI
 
-`sudo nano /boot/config.txt`, add this line:
-```
-dtoverlay=w1-gpio
-```
-**Reboot.**
-
-## Enable I2C
-
-`sudo apt-get install i2c-tools python3-smbus`
-
-`sudo nano /etc/modules`, make sure this line is there:
-```
-i2c-dev
-```
-
-`sudo nano /boot/config.txt`, add this line (or uncomment it):
-```
-dtparam=i2c_arm=on
-```
-**Reboot.**
-
-## Enable SPI
-
-`sudo apt-get install python3-dev`  
-`sudo pip3 install spidev`
-
-`sudo nano /boot/config.txt`, add this line (or uncomment it):
-```
-dtparam=spi=on
-```
-**Reboot.**
+`sudo raspi-config`, enter **Interfacing Options**, enable the protocols you
+need.
 
 ## Know your sensor's address
 
