@@ -2,7 +2,7 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.82.1**, released on November 15, 2018.
+Assistant version is **0.90.1**, released on March 21, 2019.
 
 ## Installation
 
@@ -12,12 +12,12 @@ sudo apt-get dist-upgrade
 sudo pip3 install pip wheel --upgrade
 sudo pip3 install homeassistant
 
-hass     # start Home Assistant webserver
+hass --open-ui     # start Home Assistant webserver
 ```
 
-The first time running `hass` takes a little long because it has to install a
-few more Python packages. After a while, you should be able to access it by
-pointing your browser to `http://<Raspi's IP address>:8123`
+The first time running `hass` takes a while because it has to install a few more
+Python packages. After a while, you should be able to access it by pointing your
+browser to `http://<Raspi's IP address>:8123`
 
 Sensor integration is done by modifying the file `/home/pi/.homeassistant/configuration.yaml`
 
@@ -58,7 +58,39 @@ switch:
     host: 192.168.0.104
 ```
 
-## [Telegram Bot](https://home-assistant.io/components/notify.telegram/)
+## Automation: Turn ON/OFF Smart Plug depending on Temperature
+
+First, comment out the default include. We are going to put the automation
+section in the same file:
+
+```
+# automation: !include automations.yaml
+```
+
+**For everything below, adjust `entity_id` accordingly.**
+
+```
+automation:
+  - alias: Turn ON fan if too hot
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.ds18b20_sensor
+      above: 31.5
+    action:
+      service: switch.turn_on
+      entity_id: switch.fan_plug
+
+  - alias: Turn OFF fan if too cool
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.ds18b20_sensor
+      below: 31
+    action:
+      service: switch.turn_off
+      entity_id: switch.fan_plug
+```
+
+## Automation: Send a [Telegram](https://home-assistant.io/components/notify.telegram/) message when Temperature gets too hot
 
 ```
 telegram_bot:
@@ -68,49 +100,20 @@ telegram_bot:
       - 999999999
 
 notify:
-  - name: TelegramBot
+  - name: telegram
     platform: telegram
     chat_id: 999999999
-```
 
-## Automation: Turn ON/OFF Smart Plug depending on Temperature
-
-**For everything below, adjust `entity_id` accordingly.**
-
-Insert the following contents into `/home/pi/.homeassistant/automations.yaml`:
-
-```
-- alias: Turn ON fan if too hot
-  trigger:
-    platform: numeric_state
-    entity_id: sensor.ds18b20_sensor
-    above: 31.5
-  action:
-    service: switch.turn_on
-    entity_id: switch.fan_plug
-
-- alias: Turn OFF fan if too cool
-  trigger:
-    platform: numeric_state
-    entity_id: sensor.ds18b20_sensor
-    below: 31
-  action:
-    service: switch.turn_off
-    entity_id: switch.fan_plug
-```
-
-## Automation: Send a Telegram message when Temperature gets too hot
-
-```
-- alias: Notify me if too hot
-  trigger:
-    platform: numeric_state
-    entity_id: sensor.ds18b20_sensor
-    above: 32
-  action:
-    service: notify.TelegramBot
-    data:
-      message: "\U0001f525"  # Fire emoji
+automation:
+  - alias: Notify me if too hot
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.ds18b20_sensor
+      above: 32
+    action:
+      service: notify.telegram
+      data:
+        message: "\U0001f525"  # Fire emoji
 ```
 
 ## [Sun Trigger](https://home-assistant.io/docs/automation/trigger/#sun-trigger) and [Time Trigger](https://home-assistant.io/docs/automation/trigger/#time-trigger)
@@ -128,7 +131,7 @@ Description=Home Assistant
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/hass
+ExecStart=/usr/local/bin/hass --open-ui
 User=pi
 
 [Install]
