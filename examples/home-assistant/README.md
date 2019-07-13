@@ -2,22 +2,43 @@
 
 [Home Assistant](https://home-assistant.io) is an open-source home automation
 platform. This page describes how I integrate various components into it. Home
-Assistant version is **0.90.1**, released on March 21, 2019.
+Assistant version is **0.95.4**, released on June 29, 2019.
 
 ## Installation
 
 ```
 sudo apt-get update
 sudo apt-get dist-upgrade
+
+### Home Assistant needs Python 3.6 or later ###
+
+sudo apt-get install libssl-dev openssl libreadline-dev libffi-dev
+wget https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz
+tar zxf Python-3.7.4.tgz
+cd Python-3.7.4
+./configure
+make -j4
+sudo make install
+
+### Install Home Assistant ###
+
 sudo pip3 install pip wheel --upgrade
 sudo pip3 install homeassistant
 
-hass --open-ui     # start Home Assistant webserver
+hass     # start Home Assistant webserver
 ```
 
 The first time running `hass` takes a while because it has to install a few more
 Python packages. After a while, you should be able to access it by pointing your
 browser to `http://<Raspi's IP address>:8123`
+
+If anything fails to download, try to `wget` it manually, then install it
+locally:
+
+```
+wget zzzzzz.whl
+sudo pip3 install zzzzzz.whl
+```
 
 Sensor integration is done by modifying the file `/home/pi/.homeassistant/configuration.yaml`
 
