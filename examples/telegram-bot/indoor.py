@@ -38,10 +38,12 @@ def handle(msg):
 
     # ignore non-text message
     if msg_type != 'text':
+        print('Non-text message. Ignore.')
         return
 
     # only respond to one user
     if chat_id != USER_ID:
+        print('Message from unknown user. Ignore.')
         return
 
     command = msg['text'].strip().lower()
@@ -70,6 +72,7 @@ USER_ID = int(sys.argv[2])
 bot = telepot.Bot(TOKEN)
 
 MessageLoop(bot, handle).run_as_thread()
+print('Listening ...')
 
 # variables for periodic reporting
 last_report = None
