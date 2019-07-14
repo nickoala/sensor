@@ -42,6 +42,25 @@ sudo pip3 install zzzzzz.whl
 
 Sensor integration is done by modifying the file `/home/pi/.homeassistant/configuration.yaml`
 
+At any time, you may check the validity of the config file with:
+
+```
+hass --script check_config --info all
+```
+
+## Remove unwanted icons
+
+```
+homeassistant:
+  customize:
+    person.pi:
+      hidden: true
+    sun.sun:
+      hidden: true
+    weather.home:
+      hidden: true
+```
+
 ## DS18B20 as [Command Line Sensor](https://home-assistant.io/components/sensor.command_line/)
 
 Home Assistant has this concept of a Command Line Sensor. It allows you to
@@ -61,22 +80,17 @@ sensor:
     scan_interval: 3
 ```
 
-## [TP-Link LB100](https://home-assistant.io/components/light.tplink/) Smart Wi-Fi LED Bulb
+## [TP-Link Smart Home Devices](https://home-assistant.io/components/tplink/)
+
+I have tried **LB100** Smart LED Bulb and **HS100** Smart Plug.
 
 ```
-light:
-  - platform: tplink
-    name: Book Room Light
-    host: 192.168.0.103
-```
-
-## [TP-Link HS100](https://home-assistant.io/components/switch.tplink/) Smart Wi-Fi Plug
-
-```
-switch:
-  - platform: tplink
-    name: Fan Plug
-    host: 192.168.0.104
+tplink:
+  discovery: false
+  switch:
+    - host: 192.168.0.103
+  light:
+    - host: 192.168.0.104
 ```
 
 ## Automation: Turn ON/OFF Smart Plug depending on Temperature
@@ -152,7 +166,7 @@ Description=Home Assistant
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/hass --open-ui
+ExecStart=/usr/local/bin/hass
 User=pi
 
 [Install]
