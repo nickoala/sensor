@@ -11,12 +11,13 @@ sudo apt-get update
 sudo apt-get dist-upgrade
 
 ### Home Assistant needs Python 3.6 or later ###
+### No need for Buster, because Buster has Python 3.7 as default ###
 
-sudo apt-get install libssl-dev openssl libreadline-dev libffi-dev
+sudo apt-get install libssl-dev openssl libreadline-dev libffi-dev libsqlite3-dev
 wget https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz
 tar zxf Python-3.7.4.tgz
 cd Python-3.7.4
-./configure
+./configure --enable-loadable-sqlite-extensions
 make -j4
 sudo make install
 
@@ -38,6 +39,24 @@ locally:
 ```
 wget zzzzzz.whl
 sudo pip3 install zzzzzz.whl
+```
+
+If you see this error:
+
+```
+ImportError: /usr/lib/arm-linux-gnueabihf/libssl.so.1.1: version `OPENSSL_1_1_1' not found
+```
+
+Try the following:
+
+```
+sudo pip3 uninstall cryptography
+
+### Edit file /etc/pip.conf to not use piwheels. Comment out all lines.
+
+sudo pip3 install cryptography
+
+### Edit file /etc/pip.conf back to using piwheels.
 ```
 
 Sensor integration is done by modifying the file `/home/pi/.homeassistant/configuration.yaml`
