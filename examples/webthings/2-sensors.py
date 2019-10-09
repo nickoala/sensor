@@ -1,8 +1,7 @@
 from webthing import Property, Thing, Value, MultipleThings, WebThingServer
 import logging
 import tornado.ioloop
-from sensor.DS18B20 import DS18B20
-from sensor.SHT20 import SHT20
+from sensor import DS18B20, SHT20
 
 
 class TemperatureSensor(Thing):

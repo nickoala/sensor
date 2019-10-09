@@ -1,12 +1,9 @@
-# coding=utf8
-
 import sys
 import time
 import traceback
 import telepot
 from telepot.loop import MessageLoop
-from sensor.DS18B20 import DS18B20
-from sensor.SHT20 import SHT20
+from sensor import DS18B20, SHT20
 
 """
 $ python3 indoor.py <token> <user_id>
@@ -19,7 +16,7 @@ To know more about Telegram Bot and telepot, go to:
   https://github.com/nickoala/telepot
 """
 
-ds = DS18B20('28-00000736781c')
+ds = DS18B20('28-03199779f5a1')
 sht = SHT20(1, 0x40)
 
 def read_all():

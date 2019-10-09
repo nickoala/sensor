@@ -1,8 +1,7 @@
 # Raspberry Pi Sensors
 
 This is a **Python 3** package that enables **Raspberry Pi** to read various
-sensors (and interact with some non-sensors). It has been tested on **Python
-3.5**/**Raspbian**.
+sensors.
 
 Supported devices include:
 - **DS18B20** temperature sensor
@@ -10,7 +9,6 @@ Supported devices include:
 - **HTU21D** humidity and temperature sensor
 - **SHT20** humidity and temperature sensor
 - **MCP3004** A/D Converter (**MCP3008** also compatible)
-- **LCD1602** display
 
 The chief motivation for this package is educational. I am teaching a Raspberry
 Pi course, and find it very troublesome for students having to download a
@@ -80,7 +78,7 @@ benefits:
 Read the sensor as follows:
 
 ```python
-from sensor.DS18B20 import DS18B20
+from sensor import DS18B20
 
 ds = DS18B20('28-XXXXXXXXXXXX')
 t = ds.temperature()  # read temperature
@@ -97,7 +95,7 @@ print(t.K)  # Kelvin
 - Use `i2cdetect -y 1` to check address. It is probably `0x77`.
 
 ```python
-from sensor.BMP180 import BMP180
+from sensor import BMP180
 
 # I2C bus=1, Address=0x77
 bmp = BMP180(1, 0x77)
@@ -129,7 +127,7 @@ print(a.ft)  # in feet
 - Use `i2cdetect -y 1` to check address. It is probably `0x40`.
 
 ```python
-from sensor.HTU21D import HTU21D
+from sensor import HTU21D
 
 # I2C bus=1, Address=0x40
 htu = HTU21D(1, 0x40)
@@ -151,7 +149,7 @@ h, t = htu.all()  # read both at once
 - Use `i2cdetect -y 1` to check address. It is probably `0x40`.
 
 ```python
-from sensor.SHT20 import SHT20
+from sensor import SHT20
 
 # I2C bus=1, Address=0x40
 sht = SHT20(1, 0x40)
@@ -173,27 +171,10 @@ h, t = sht.all()  # read both at once
   directly. They have to go through an A/D converter.
 
 ```python
-from sensor.MCP3004 import MCP3004
+from sensor import MCP3004
 
 # SPI bus=0, CS=0, V_ref=3.3V
 mcp = MCP3004(bus=0, addr=0, vref=3.3)
 
 mcp.voltage(0)  # read voltage on channel 0
-```
-
-## LCD1602
-
-- Not a sensor, obviously. Useful for displaying sensor data.
-- Use `i2cdetect -y 1` to check address. It is probably `0x27`.
-
-```python
-from sensor.LCD1602 import LCD1602
-
-# I2C bus=1, Address=0x27
-lcd = LCD1602(1, 0x27)
-
-lcd.display('Nick Lee', 1)   # my name on line 1
-lcd.display('Hong Kong', 2)  # my city on line 2
-
-lcd.clear()
 ```
