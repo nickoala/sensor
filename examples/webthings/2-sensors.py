@@ -1,129 +1,87 @@
-from webthing import Property, Thing, Value, MultipleThings, WebThingServer
+from webthing import Thing, Property, Value, MultipleThings, WebThingServer
 import logging
 import tornado.ioloop
 from sensor import DS18B20, SHT20
 
 
-class TemperatureSensor(Thing):
-    def __init__(self, address):
-        Thing.__init__(
-            self,
-            'urn:dev:ops:temperature-sensor',
-            'Temperature Sensor',
-            ['TemperatureSensor'],
-        )
-
-        self.sensor = DS18B20(address)
-
-        self.temperature = Value(self.read_celsius())
-        self.add_property(
-            Property(self,
-                     'temperature',
-                     self.temperature,
-                     metadata={
-                         '@type': 'TemperatureProperty',
-                         'title': 'Temperature',
-                         'type': 'number',
-                         'description': 'The current temperature in °C',
-                         'minimum': -50,
-                         'maximum': 70,
-                         'unit': '°C',
-                         'readOnly': True,
-                     }))
-
-        logging.debug('starting the sensor update looping task')
-        self.timer = tornado.ioloop.PeriodicCallback(
-            self.update,
-            3000
-        )
-        self.timer.start()
-
-    def update(self):
-        c = self.read_celsius()
-        logging.debug('setting new temperature: %s', c)
-        self.temperature.notify_of_external_update(c)
-
-    def cancel_update_task(self):
-        self.timer.stop()
-
-    def read_celsius(self):
-        return self.sensor.temperature().C
-
-
-class HumidityTemperatureSensor(Thing):
-    def __init__(self, bus, address):
-        Thing.__init__(
-            self,
-            'urn:dev:ops:humidity-temperature-sensor',
-            'Humidity+Temperature Sensor',
-            ['MultiLevelSensor', 'TemperatureSensor'],
-        )
-
-        # If you want icon to show humidity:
-        #   - remove type `TemperatureSensor`, and
-        #   - change temperature property @type to `LevelProperty`
-
-        self.sensor = SHT20(bus, address)
-
-        self.humidity = Value(self.sensor.humidity().RH)
-        self.add_property(
-            Property(self,
-                     'humidity',
-                     self.humidity,
-                     metadata={
-                         '@type': 'LevelProperty',
-                         'title': 'Humidity',
-                         'unit': 'percent',
-                         'readOnly': True,
-                     }))
-
-        self.temperature = Value(self.sensor.temperature().C)
-        self.add_property(
-            Property(self,
-                     'temperature',
-                     self.temperature,
-                     metadata={
-                         '@type': 'TemperatureProperty',
-                         'title': 'Temperature',
-                         'unit': '°C',
-                         'readOnly': True,
-                     }))
-
-        logging.debug('starting the sensor update looping task')
-        self.timer = tornado.ioloop.PeriodicCallback(
-            self.update,
-            3000
-        )
-        self.timer.start()
-
-    def update(self):
-        rh, celsius = self.read_numbers()
-        logging.debug('setting new humidity & temperature: %s, %s', rh, celsius)
-        self.humidity.notify_of_external_update(rh)
-        self.temperature.notify_of_external_update(celsius)
-
-    def cancel_update_task(self):
-        self.timer.stop()
-
-    def read_numbers(self):
-        h,t = self.sensor.all()
-        return h.RH, t.C
-
-
 def run_server():
-    t_sensor = TemperatureSensor('28-031997791364')
-    ht_sensor = HumidityTemperatureSensor(1, 0x40)
+    ds18 = DS18B20('28-03199779f5a1')
+    ds18_celsius = Value(ds18.temperature().C)
+
+    ds18_thing = Thing(
+        'urn:dev:ops:temperature-sensor',
+        'Temperature Sensor',
+        ['TemperatureSensor'])
+
+    ds18_thing.add_property(
+        Property(
+            ds18_thing,
+            'celsius',
+            ds18_celsius,
+            metadata={
+                '@type': 'TemperatureProperty',
+                'title': 'Celsius',
+                'type': 'number',
+                'unit': '°C',
+                'readOnly': True }))
+
+    sht = SHT20(1, 0x40)
+    h, t = sht.all()
+    sht_celsius = Value(t.C)
+    sht_rh = Value(h.RH)
+
+    sht_thing = Thing(
+        'urn:dev:ops:humidity-temperature-sensor',
+        'Humidity & Temperature Sensor',
+        ['MultiLevelSensor', 'TemperatureSensor'])
+
+    # If you want icon to show humidity:
+    #   - remove type `TemperatureSensor`, and
+    #   - change temperature metadata @type to `LevelProperty`
+
+    sht_thing.add_property(
+        Property(
+            sht_thing,
+            'humidity',
+            sht_rh,
+            metadata={
+                '@type': 'LevelProperty',
+                'title': 'Relative humidity',
+                'unit': 'percent',
+                'readOnly': True }))
+
+    sht_thing.add_property(
+        Property(
+            sht_thing,
+            'temperature',
+            sht_celsius,
+            metadata={
+                '@type': 'TemperatureProperty',
+                'title': 'Celsius',
+                'unit': '°C',
+                'readOnly': True }))
 
     server = WebThingServer(
-                MultipleThings([t_sensor, ht_sensor], 'Multi-sensor Device'),
+                MultipleThings([ds18_thing, sht_thing], 'Multi-sensor Device'),
                 port=8888)
+
+    def update_values():
+        t = ds18.temperature()
+        ds18_celsius.notify_of_external_update(t.C)
+
+        h, t = sht.all()
+        sht_celsius.notify_of_external_update(t.C)
+        sht_rh.notify_of_external_update(h.RH)
+
+    timer = tornado.ioloop.PeriodicCallback(update_values, 3000)
+    timer.start()
+
     try:
         logging.info('starting the server')
         server.start()
     except KeyboardInterrupt:
-        logging.debug('canceling the sensor update looping task')
-        t_sensor.cancel_update_task()
-        ht_sensor.cancel_update_task()
+        logging.debug('stopping update task')
+        timer.stop()
         logging.info('stopping the server')
         server.stop()
         logging.info('done')
