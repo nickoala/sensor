@@ -11,5 +11,5 @@ Examples:
 - [2-sensors.py](2-sensors.py)
 - [Official](https://github.com/mozilla-iot/webthing-python/tree/master/example)
 
-Reference:
+Schemas:
 - https://iot.mozilla.org/schemas/

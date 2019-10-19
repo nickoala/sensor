@@ -32,7 +32,7 @@ def run_server():
 
     sht_thing = Thing(
         'urn:dev:ops:humidity-temperature-sensor',
-        'Humidity & Temperature Sensor',
+        'Humidity and Temperature Sensor',
         ['MultiLevelSensor', 'TemperatureSensor'])
 
     # If you want icon to show humidity:
@@ -47,6 +47,7 @@ def run_server():
             metadata={
                 '@type': 'LevelProperty',
                 'title': 'Relative humidity',
+                'type': 'number',
                 'unit': 'percent',
                 'readOnly': True }))
 
@@ -58,6 +59,7 @@ def run_server():
             metadata={
                 '@type': 'TemperatureProperty',
                 'title': 'Celsius',
+                'type': 'number',
                 'unit': '°C',
                 'readOnly': True }))
 
@@ -65,7 +67,7 @@ def run_server():
                 MultipleThings([ds18_thing, sht_thing], 'Multi-sensor Device'),
                 port=8888)
 
-    def update_values():
+    def update():
         t = ds18.temperature()
         ds18_celsius.notify_of_external_update(t.C)
 
@@ -73,7 +75,7 @@ def run_server():
         sht_celsius.notify_of_external_update(t.C)
         sht_rh.notify_of_external_update(h.RH)
 
-    timer = tornado.ioloop.PeriodicCallback(update_values, 3000)
+    timer = tornado.ioloop.PeriodicCallback(update, 3000)
     timer.start()
 
     try:

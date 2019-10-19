@@ -27,11 +27,11 @@ def run_server():
 
     server = WebThingServer(SingleThing(thing), port=8888)
 
-    def update_values():
+    def update():
         t = ds18.temperature()
         celsius.notify_of_external_update(t.C)
 
-    timer = tornado.ioloop.PeriodicCallback(update_values, 3000)
+    timer = tornado.ioloop.PeriodicCallback(update, 3000)
     timer.start()
 
     try:
