@@ -10,7 +10,7 @@ def run_server():
 
     ds18_thing = Thing(
         'urn:dev:ops:temperature-sensor',
-        'Temperature Sensor',
+        'ds18b20',
         ['TemperatureSensor'])
 
     ds18_thing.add_property(
@@ -32,12 +32,8 @@ def run_server():
 
     sht_thing = Thing(
         'urn:dev:ops:humidity-temperature-sensor',
-        'Humidity and Temperature Sensor',
+        'sht20',
         ['MultiLevelSensor', 'TemperatureSensor'])
-
-    # If you want icon to show humidity:
-    #   - remove type `TemperatureSensor`, and
-    #   - change temperature metadata @type to `LevelProperty`
 
     sht_thing.add_property(
         Property(
@@ -64,8 +60,8 @@ def run_server():
                 'readOnly': True }))
 
     server = WebThingServer(
-                MultipleThings([ds18_thing, sht_thing], 'Multi-sensor Device'),
-                port=8888)
+                MultipleThings([ds18_thing, sht_thing], 'Multi-Sensor'),
+                port=8890)
 
     def update():
         t = ds18.temperature()

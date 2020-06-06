@@ -1,15 +1,29 @@
 # WebThings Integration
 
-Simple, just wrap the sensor with [Web Thing API](https://iot.mozilla.org/framework/)
+Background:
+
+- [Web Thing API](https://iot.mozilla.org/wot/)
+- [WoT Capability Schemas](https://iot.mozilla.org/schemas/)
+- [WebThings Framework](https://iot.mozilla.org/framework/)
+- [Python Library](https://github.com/mozilla-iot/webthing-python)
+
+Install:
 
 ```
 sudo pip3 install webthing
 ```
 
-Examples:
-- [1-sensor.py](1-sensor.py)
-- [2-sensors.py](2-sensors.py)
-- [Official](https://github.com/mozilla-iot/webthing-python/tree/master/example)
+Systemd service file in `/lib/systemd/system/`:
 
-Schemas:
-- https://iot.mozilla.org/schemas/
+```
+[Unit]
+Description=WebThing Server
+After=network.target
+
+[Service]
+ExecStart=python3 /PATH/TO/SCRIPT
+User=pi
+
+[Install]
+WantedBy=multi-user.target
+```
